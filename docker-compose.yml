@@ -1,13 +1,13 @@
 services:
   postgres:
     image: postgres:bullseye
-    env_file: ".env"
+    env_file: "./.env"
     environment:
       PGDATA: /var/lib/postgresql/data/pgdata
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data/pgdata
+      - data:/var/lib/postgresql/data/pgdata
     deploy:
       resources:
         limits:
@@ -18,4 +18,4 @@ services:
     stdin_open: true
 
 volumes:
-  pgdata:
+  data:

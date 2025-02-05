@@ -10,22 +10,28 @@ export class ChatsService {
         private readonly chatRepo: Repository<Chats>
     ) { }
 
-    retieveChats(userId: string): Promise<Chats[]> {
-        return this.chatRepo
-            .createQueryBuilder("chats")
-            .leftJoinAndSelect("chats.user1", "user1")
-            .leftJoinAndSelect("chats.user2", "user2")
-            .where("chats.user1.id = :userId OR chat.user2 = userId", { userId })
-            .getMany()
+    async retieveChats(userId: string): Promise<Chats[]> {
+        try {
+            let chats = await this.chatRepo
+                .createQueryBuilder("chats")
+                .where("chats.user1Id = :userId OR chats.user2Id = :userId", { userId })
+                .getMany();
+            return chats;
+        } catch {
+            throw new NotFoundException();
+        }
     }
 
     async getChat(userId: string, chatId: string): Promise<Chats> {
-        let chat = await this.chatRepo.findOne({ where: { id: chatId } });
+        let chat = await this.chatRepo.findOne({
+            where: { id: chatId },
+            relations: { messages: true }
+        });
         if (!chat) {
-            throw new NotFoundException({message: "chat not found"});
+            throw new NotFoundException({ message: "chat not found" });
         }
-        if (chat.user1.id !== userId && chat.user2.id !== userId) {
-            throw new UnauthorizedException({message: "don't have permission to see that chat"});
+        if (chat.user1Id !== userId && chat.user2Id !== userId) {
+            throw new UnauthorizedException({ message: "don't have permission to see that chat" });
         }
         return chat;
     }

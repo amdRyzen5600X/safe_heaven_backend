@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersSignInDto } from './dto/users.sign_in.dto';
 import { UsersJwtDto } from './dto/users.jwt.dto';
@@ -18,7 +18,7 @@ export class AuthController {
 
     @Public()
     @HttpCode(HttpStatus.CREATED)
-    @Post("/sigh-up")
+    @Post("/sign-up")
     signUp(@Body() user: UsersSignUpDto): Promise<UsersJwtDto> {
         return this.authService.signUp(user);
     }

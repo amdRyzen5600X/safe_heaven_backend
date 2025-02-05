@@ -2,6 +2,9 @@ import { CanActivate, ExecutionContext, Injectable, SetMetadata, UnauthorizedExc
 import { Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
 
+export const IS_PUBLIC_KEY = "isPublic";
+export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
+
 @Injectable()
 export class AuthGuard implements CanActivate {
     constructor(
@@ -14,17 +17,17 @@ export class AuthGuard implements CanActivate {
             context.getHandler(),
             context.getClass(),
         ]);
+        console.log(isPublic);
         if (isPublic) {
             return true;
         }
 
         let request = context.switchToHttp().getRequest();
-        let token = this.extractTokenFromHeader(request);
-        if (!token) {
-            throw new UnauthorizedException();
-        }
-
         try {
+            let token = this.extractTokenFromHeader(request);
+            if (!token) {
+                throw new UnauthorizedException();
+            }
             let payload = await this.jwtService.verifyAsync(
                 token,
                 {
@@ -36,6 +39,7 @@ export class AuthGuard implements CanActivate {
         } catch {
             throw new UnauthorizedException();
         }
+
         return true;
     }
 
@@ -45,5 +49,3 @@ export class AuthGuard implements CanActivate {
     }
 }
 
-export const IS_PUBLIC_KEY = "isPublic";
-export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);

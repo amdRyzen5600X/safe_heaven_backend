@@ -9,14 +9,16 @@ export class ChatsController {
 
     @HttpCode(HttpStatus.OK)
     @Get("/")
-    retrieveChats(@Request() req: UsersJwtPayloadDto): Promise<Chats[]> {
-        let userId = req.id;
+    retrieveChats(@Request() req: { user: UsersJwtPayloadDto }): Promise<Chats[]> {
+        console.log(req.user);
+        let userId = req.user.id;
         return this.chatsService.retieveChats(userId);
     }
 
     @HttpCode(HttpStatus.OK)
     @Get("/:chatId")
-    getChatMessages(@Request() req: UsersJwtPayloadDto, @Param("chatId") chatId: string): Promise<Chats> {
-        return this.chatsService.getChat(req.id, chatId);
+    getChatMessages(@Request() req: { user: UsersJwtPayloadDto }, @Param("chatId") chatId: string): Promise<Chats> {
+        let userId = req.user.id;
+        return this.chatsService.getChat(userId, chatId);
     }
 }
