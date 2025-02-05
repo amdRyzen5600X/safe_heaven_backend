@@ -5,6 +5,7 @@ import { UsersSignInDto } from './dto/users.sign_in.dto';
 import { JwtService } from "@nestjs/jwt";
 import { UsersJwtDto } from "./dto/users.jwt.dto";
 import { UsersSignUpDto } from "./dto/users.sign_up.dto";
+import { UsersJwtPayloadDto } from "./dto/users.jwt-payload.dto";
 
 @Injectable()
 export class AuthService {
@@ -18,7 +19,7 @@ export class AuthService {
         if (!bcrypt.compare(foundUser?.password, user.password) || foundUser === null) {
             throw new UnauthorizedException();
         }
-        let payload = { id: foundUser.id, username: foundUser.username };
+        let payload: UsersJwtPayloadDto = { id: foundUser.id, username: foundUser.username };
         return { access_token: await this.jwtService.signAsync(payload) };
     }
 
@@ -34,7 +35,7 @@ export class AuthService {
 
         let createdUser = await this.usersService.createUser(user.login, user.password);
 
-        let payload = { id: createdUser.id, username: createdUser.username };
+        let payload: UsersJwtPayloadDto = { id: createdUser.id, username: createdUser.username };
         return { access_token: await this.jwtService.signAsync(payload) };
     }
 }
