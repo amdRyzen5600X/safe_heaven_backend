@@ -11,26 +11,19 @@ export class ChatsService {
     ) { }
 
     async retieveChats(userId: string): Promise<Chats[]> {
-        try {
-            let chats = await this.chatRepo
-                .createQueryBuilder("chats")
-                .where("chats.user1Id = :userId OR chats.user2Id = :userId", { userId })
-                .getMany();
-            return chats;
-        } catch {
-            throw new NotFoundException();
-        }
+        let chats = await this.chatRepo.find({ relations: { messages: true, user1: true, user2: true } });
+        return chats.filter((chat) => {
+            return (chat.user1.id === userId || chat.user2.id === userId);
+        });
+
     }
 
     async getChat(userId: string, chatId: string): Promise<Chats> {
-        let chat = await this.chatRepo.findOne({
-            where: { id: chatId },
-            relations: { messages: true }
-        });
+        let chat = await this.chatRepo.findOne({ where: { id: chatId }, relations: { messages: true } });
         if (!chat) {
             throw new NotFoundException({ message: "chat not found" });
         }
-        if (chat.user1Id !== userId && chat.user2Id !== userId) {
+        if (chat.user1.id !== userId && chat.user2.id !== userId) {
             throw new UnauthorizedException({ message: "don't have permission to see that chat" });
         }
         return chat;

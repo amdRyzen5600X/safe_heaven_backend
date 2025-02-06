@@ -15,7 +15,7 @@ export class AuthService {
     ) { }
 
     async signIn(user: UsersSignInDto): Promise<UsersJwtDto> {
-        let foundUser = await this.usersService.findOne(user.login);
+        let foundUser = await this.usersService.findByUsername(user.login);
         if (!bcrypt.compare(foundUser?.password, user.password) || foundUser === null) {
             throw new UnauthorizedException();
         }
@@ -24,7 +24,7 @@ export class AuthService {
     }
 
     async signUp(user: UsersSignUpDto): Promise<UsersJwtDto> {
-        let foundUser = await this.usersService.findOne(user.login);
+        let foundUser = await this.usersService.findByUsername(user.login);
         if (foundUser !== null) {
             throw new ConflictException({ message: "user already exists" });
         }

@@ -11,8 +11,12 @@ export class UsersService {
         private readonly userRepo: Repository<Users>
     ) { }
 
-    findOne(username: string): Promise<Users | null> {
+    findByUsername(username: string): Promise<Users | null> {
         return this.userRepo.findOne({ where: { username: username } });
+    }
+
+    findById(userId: string): Promise<Users | null> {
+        return this.userRepo.findOne({ where: { id: userId } });
     }
 
     async createUser(username: string, password: string): Promise<Users> {

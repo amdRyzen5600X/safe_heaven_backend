@@ -20,4 +20,10 @@ export class Messages {
 
     @CreateDateColumn()
     createdAt: Date;
+
+    constructor(sender: Users, chat: Chats, content: string) {
+        this.sender = sender;
+        this.chat = chat;
+        this.content = content;
+    }
 }
