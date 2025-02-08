@@ -12,6 +12,9 @@ export class Users {
     @Column()
     password: string;
 
+    @Column({ nullable: true })
+    socketId?: string;
+
     @CreateDateColumn()
     createdAt: Date;
 
@@ -21,5 +24,6 @@ export class Users {
     constructor(username: string, password: string) {
         this.username = username;
         this.password = password;
+        this.socketId = undefined;
     }
 }

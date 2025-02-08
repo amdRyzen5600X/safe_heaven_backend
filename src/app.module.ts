@@ -10,6 +10,8 @@ import { Chats } from './chats/chats.entity';
 import { Messages } from './messages/messages.entity';
 import { MessagesModule } from './messages/messages.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConversationGateway } from './conversation/conversation.gateway';
+import { ConversationModule } from './conversation/conversation.module';
 
 @Module({
     imports: [
@@ -33,9 +35,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         UsersModule,
         AuthModule,
         ChatsModule,
-        MessagesModule
+        MessagesModule,
+        ConversationModule
     ],
     controllers: [AppController],
-    providers: [AppService],
+    providers: [AppService,],
 })
 export class AppModule { }

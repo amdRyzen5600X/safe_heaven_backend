@@ -38,4 +38,25 @@ export class AuthService {
         let payload: UsersJwtPayloadDto = { id: createdUser.id, username: createdUser.username };
         return { access_token: await this.jwtService.signAsync(payload) };
     }
+
+    async verify(rawToken: string | undefined): Promise<UsersJwtPayloadDto> {
+        if (!rawToken) {
+            throw new UnauthorizedException();
+        }
+        let token = this.extractTokenFromHeader(rawToken);
+        if (!token) {
+            throw new UnauthorizedException();
+        }
+        let payload: UsersJwtPayloadDto = await this.jwtService.verifyAsync(
+            token,
+            {
+                secret: process.env.JWT_SECRET,
+            }
+        );
+        return payload;
+    }
+    private extractTokenFromHeader(rawToken: string): string | null {
+        let [type, token] = rawToken.split(" ") ?? [];
+        return type === "Bearer" ? token : null;
+    }
 }

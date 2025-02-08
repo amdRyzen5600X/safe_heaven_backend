@@ -9,7 +9,7 @@ import { Repository } from 'typeorm';
 export class MessagesService {
     constructor(
         @InjectRepository(Messages)
-        private readonly chatRepo: Repository<Messages>
+        private readonly messagesRepo: Repository<Messages>
     ) { }
 
     async sendMessage(sender: Users, content: string, chat: Chats): Promise<Messages> {
@@ -17,6 +17,6 @@ export class MessagesService {
             throw new UnauthorizedException();
         }
         let message = new Messages(sender, chat, content);
-        return await this.chatRepo.save(message)
+        return await this.messagesRepo.save(message)
     }
 }

@@ -1,10 +1,11 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Request } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Request, UseGuards } from '@nestjs/common';
 import { UsersJwtPayloadDto } from 'src/auth/dto/users.jwt-payload.dto';
 import { ChatsService } from './chats.service';
 import { ChatsRetrieveDto } from './dto/chats.retrieve.dto';
 import { MessageDto } from 'src/messages/dto/messages.dto';
 import { MessagesService } from 'src/messages/messages.service';
 import { MessagesSendDto } from './dto/messages.send.dto';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('chats')
 export class ChatsController {
@@ -13,6 +14,7 @@ export class ChatsController {
         private readonly messagesService: MessagesService,
     ) { }
 
+    @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.OK)
     @Get("/")
     async retrieveChats(@Request() req: { user: UsersJwtPayloadDto }): Promise<ChatsRetrieveDto[]> {
@@ -36,6 +38,7 @@ export class ChatsController {
         });
     }
 
+    @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.OK)
     @Get("/:chatId")
     async getChatMessages(@Request() req: { user: UsersJwtPayloadDto }, @Param("chatId") chatId: string): Promise<ChatsRetrieveDto> {
@@ -58,6 +61,7 @@ export class ChatsController {
         }
     }
 
+    @UseGuards(AuthGuard)
     @HttpCode(HttpStatus.OK)
     @Post("/:chatId")
     async sendMessage(@Request() req: { user: UsersJwtPayloadDto }, @Param("chatId") chatId: string, @Body() msg: MessagesSendDto): Promise<MessageDto> {

@@ -1,4 +1,13 @@
 services:
+  # safe_heaven_backend:
+  #   continer_name: safe_heaven_backend
+  #   image: localhost/save_heaven_backend:latest
+  #   env_file: "./.env"
+  #   depends_on:
+  #     - postgres
+  #   ports:
+  #    - 3000:42069
+
   postgres:
     image: postgres:bullseye
     env_file: "./.env"
