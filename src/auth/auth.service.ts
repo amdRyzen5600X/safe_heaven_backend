@@ -16,7 +16,7 @@ export class AuthService {
 
     async signIn(user: UsersSignInDto): Promise<UsersJwtDto> {
         let foundUser = await this.usersService.findByUsername(user.login);
-        if (!bcrypt.compare(foundUser?.password, user.password) || foundUser === null) {
+        if (foundUser === null || !bcrypt.compare(foundUser?.password, user.password)) {
             throw new UnauthorizedException();
         }
         let payload: UsersJwtPayloadDto = { id: foundUser.id, username: foundUser.username };
