@@ -1,17 +1,14 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Request, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus, Param, Post, Request, UseGuards } from '@nestjs/common';
 import { UsersJwtPayloadDto } from 'src/auth/dto/users.jwt-payload.dto';
 import { ChatsService } from './chats.service';
 import { ChatsRetrieveDto } from './dto/chats.retrieve.dto';
 import { MessageDto } from 'src/messages/dto/messages.dto';
-import { MessagesService } from 'src/messages/messages.service';
-import { MessagesSendDto } from './dto/messages.send.dto';
 import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('chats')
 export class ChatsController {
     constructor(
         private readonly chatsService: ChatsService,
-        private readonly messagesService: MessagesService,
     ) { }
 
     @UseGuards(AuthGuard)
@@ -58,21 +55,6 @@ export class ChatsController {
             name: name,
             lastMessage: messages[messages.length - 1],
             messages: messages,
-        }
-    }
-
-    @UseGuards(AuthGuard)
-    @HttpCode(HttpStatus.OK)
-    @Post("/:chatId")
-    async sendMessage(@Request() req: { user: UsersJwtPayloadDto }, @Param("chatId") chatId: string, @Body() msg: MessagesSendDto): Promise<MessageDto> {
-        let userId = req.user.id;
-        let chat = await this.chatsService.getChat(userId, chatId);
-        let sender = (userId === chat.user1.id) ? chat.user1 : chat.user2;
-        let message = await this.messagesService.sendMessage(sender, msg.content, chat);
-        return {
-            id: message.id,
-            content: message.content,
-            senderUsername: message.sender.username,
         }
     }
 

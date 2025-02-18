@@ -6,10 +6,12 @@ import { Chats } from './chats.entity';
 import { MessagesModule } from 'src/messages/messages.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Chats]),
+        UsersModule,
         MessagesModule,
         ConfigModule.forRoot({ envFilePath: "./.env" }),
         JwtModule.registerAsync({

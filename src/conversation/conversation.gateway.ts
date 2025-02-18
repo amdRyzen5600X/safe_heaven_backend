@@ -1,10 +1,11 @@
 import { OnModuleInit, UnauthorizedException } from '@nestjs/common';
-import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway, WebSocketServer, WsException } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { ChatsService } from 'src/chats/chats.service';
 import { MessagesSendDto } from 'src/chats/dto/messages.send.dto';
 import { MessagesService } from 'src/messages/messages.service';
+import { Users } from 'src/users/users.entity';
 import { UsersService } from 'src/users/users.service';
 
 @WebSocketGateway({
@@ -61,6 +62,38 @@ export class ConversationGateway implements OnGatewayConnection, OnGatewayDiscon
         let user2 = chat.user1.id === socket.data.user.id ? chat.user2 : chat.user1;
         if (user2.socketId) {
             this.server.to(user2.socketId).emit("newMessage", { id: msg.id, content: msg.content, senderUsername: msg.sender.username });
+        }
+    }
+
+    @SubscribeMessage("createChat")
+    async createChat(socket: Socket, user2req: { userId: string }) {
+        let user2 = await this.usersService.findById(user2req.userId);
+        if (user2 === null) {
+            throw new WsException({ message: "user not found" });
+        }
+        let chat = await this.chatService.createChat(socket.data.user, user2);
+        let lastMessage = chat.messages[chat.messages.length - 1];
+        let chatDtoToUser1 = {
+            id: chat.id,
+            name: chat.user2.username,
+            lastMessage: {
+                id: lastMessage.id,
+                content: lastMessage.content,
+                senderUsername: lastMessage.sender.username,
+            }
+        }
+        let chatDtoToUser2 = {
+            id: chat.id,
+            name: chat.user1.username,
+            lastMessage: {
+                id: lastMessage.id,
+                content: lastMessage.content,
+                senderUsername: lastMessage.sender.username,
+            }
+        }
+        this.server.to(socket.id).emit("newChat", chatDtoToUser1);
+        if (user2.socketId !== undefined) {
+            this.server.to(user2.socketId).emit("newChat", chatDtoToUser2);
         }
     }
 

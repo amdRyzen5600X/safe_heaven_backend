@@ -2,13 +2,20 @@ import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/co
 import { Repository } from 'typeorm';
 import { Chats } from './chats.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { UsersService } from 'src/users/users.service';
+import { Users } from 'src/users/users.entity';
 
 @Injectable()
 export class ChatsService {
     constructor(
         @InjectRepository(Chats)
-        private readonly chatRepo: Repository<Chats>
+        private readonly chatRepo: Repository<Chats>,
     ) { }
+
+    async createChat(user1: Users, user2: Users): Promise<Chats> {
+        let chat = await this.chatRepo.save({user1: user1, user2: user2});
+        return chat;
+    }
 
     async retieveChats(userId: string): Promise<Chats[]> {
         let chats = await this.chatRepo.find({ relations: { messages: true, user1: true, user2: true } });
