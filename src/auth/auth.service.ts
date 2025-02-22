@@ -17,10 +17,13 @@ export class AuthService {
     async signIn(user: UsersSignInDto): Promise<UsersJwtDto> {
         let foundUser = await this.usersService.findByUsername(user.login);
         if (foundUser === null || !bcrypt.compare(foundUser?.password, user.password)) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException({ message: "password or username is wrong"});
         }
         let payload: UsersJwtPayloadDto = { id: foundUser.id, username: foundUser.username };
-        return { access_token: await this.jwtService.signAsync(payload) };
+        return {
+            access_token: await this.jwtService.signAsync(payload, {expiresIn: "1d"}),
+            refresh_token: await this.jwtService.signAsync(payload, {expiresIn: "7d"})
+        };
     }
 
     async signUp(user: UsersSignUpDto): Promise<UsersJwtDto> {
@@ -36,7 +39,22 @@ export class AuthService {
         let createdUser = await this.usersService.createUser(user.login, user.password);
 
         let payload: UsersJwtPayloadDto = { id: createdUser.id, username: createdUser.username };
-        return { access_token: await this.jwtService.signAsync(payload) };
+        return {
+            access_token: await this.jwtService.signAsync(payload, {expiresIn: "1d"}),
+            refresh_token: await this.jwtService.signAsync(payload, {expiresIn: "7d"})
+        };
+    }
+
+    async refresh(refresh_token: string | undefined): Promise<UsersJwtDto> {
+        let payload: UsersJwtPayloadDto = await this.verify(refresh_token);
+        let user = await this.usersService.findById(payload.id);
+        if (user === null) {
+            throw new UnauthorizedException();
+        }
+        return {
+            access_token: await this.jwtService.signAsync(payload, {expiresIn: "1d"}),
+            refresh_token: await this.jwtService.signAsync(payload, {expiresIn: "7d"})
+        };
     }
 
     async verify(rawToken: string | undefined): Promise<UsersJwtPayloadDto> {
@@ -55,6 +73,7 @@ export class AuthService {
         );
         return payload;
     }
+
     private extractTokenFromHeader(rawToken: string): string | null {
         let [type, token] = rawToken.split(" ") ?? [];
         return type === "Bearer" ? token : null;

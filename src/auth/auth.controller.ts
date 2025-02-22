@@ -4,6 +4,7 @@ import { UsersSignInDto } from './dto/users.sign_in.dto';
 import { UsersJwtDto } from './dto/users.jwt.dto';
 import { UsersSignUpDto } from './dto/users.sign_up.dto';
 import { AuthGuard } from './auth.guard';
+import { UsersRefreshDto } from './dto/user.refresh.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -21,10 +22,15 @@ export class AuthController {
         return this.authService.signUp(user);
     }
 
+    @HttpCode(HttpStatus.CREATED)
+    @Post("/refresh")
+    refresh(@Body() refresh: UsersRefreshDto): Promise<UsersJwtDto> {
+        return this.authService.refresh(refresh.refresh_token);
+    }
+
     @UseGuards(AuthGuard)
-    @Get("/profile")
+    @Get("/refresh")
     profile(@Request() req: any) {
-        return req.user;
     }
 
 }

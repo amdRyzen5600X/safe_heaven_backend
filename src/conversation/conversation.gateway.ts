@@ -67,34 +67,25 @@ export class ConversationGateway implements OnGatewayConnection, OnGatewayDiscon
 
     @SubscribeMessage("createChat")
     async createChat(socket: Socket, user2req: { userId: string }) {
+        console.log("creating new chat...");
         let user2 = await this.usersService.findById(user2req.userId);
         if (user2 === null) {
             throw new WsException({ message: "user not found" });
         }
         let chat = await this.chatService.createChat(socket.data.user, user2);
-        let lastMessage = chat.messages[chat.messages.length - 1];
         let chatDtoToUser1 = {
             id: chat.id,
             name: chat.user2.username,
-            lastMessage: {
-                id: lastMessage.id,
-                content: lastMessage.content,
-                senderUsername: lastMessage.sender.username,
-            }
         }
         let chatDtoToUser2 = {
             id: chat.id,
             name: chat.user1.username,
-            lastMessage: {
-                id: lastMessage.id,
-                content: lastMessage.content,
-                senderUsername: lastMessage.sender.username,
-            }
         }
         this.server.to(socket.id).emit("newChat", chatDtoToUser1);
         if (user2.socketId !== undefined) {
             this.server.to(user2.socketId).emit("newChat", chatDtoToUser2);
         }
+        console.log("created chat!");
     }
 
 }
