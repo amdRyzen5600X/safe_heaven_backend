@@ -6,11 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ChatsModule } from './chats/chats.module';
 import { Users } from './users/users.entity';
-import { Chats } from './chats/chats.entity';
+import { Chats, UsersToKeysTmp } from './chats/chats.entity';
 import { Messages } from './messages/messages.entity';
 import { MessagesModule } from './messages/messages.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ConversationGateway } from './conversation/conversation.gateway';
 import { ConversationModule } from './conversation/conversation.module';
 
 @Module({
@@ -28,7 +27,7 @@ import { ConversationModule } from './conversation/conversation.module';
                 username: configService.get("POSTGRES_USER"),
                 password: configService.get("POSTGRES_PASSWORD"),
                 database: configService.get("POSTGRES_DB"),
-                entities: [Users, Chats, Messages],
+                entities: [Users, Chats, Messages, UsersToKeysTmp],
                 synchronize: true, //remove on prod
             }),
         }),
